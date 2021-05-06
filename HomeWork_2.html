@@ -52,42 +52,43 @@
     Присвоить переменной а значение в промежутке [0..15].
     С помощью оператора switch организовать вывод чисел от a до 15.
     * */
-    // var a = 4;
+    // let a = 4;
+    // let result = '';
     // switch (a) {
     //     case 0:
-    //         console.log(0);
+    //         result += '0 ';
     //     case 1:
-    //         console.log(1);
+    //         result += '1 ';
     //     case 2:
-    //         console.log(2);
+    //         result += '2 ';
     //     case 3:
-    //         console.log(3);
+    //         result += '3 ';
     //     case 4:
-    //         console.log(4);
+    //         result += '4 ';
     //     case 5:
-    //         console.log(5);
+    //         result += '5 ';
     //     case 6:
-    //         console.log(6);
+    //         result += '6 ';
     //     case 7:
-    //         console.log(7);
+    //         result += '7 ';
     //     case 8:
-    //         console.log(8);
+    //         result += '8 ';
     //     case 9:
-    //         console.log(9);
+    //         result += '9 ';
     //     case 10:
-    //         console.log(10);
+    //         result += '10 ';
     //     case 11:
-    //         console.log(11);
+    //         result += '11 ';
     //     case 12:
-    //         console.log(12);
+    //         result += '12 ';
     //     case 13:
-    //         console.log(13);
+    //         result += '13 ';
     //     case 14:
-    //         console.log(14);
+    //         result += '14 ';
     //     case 15:
-    //         console.log(15);
+    //         result += '15 ';
     // }
-
+    // console.log(result)
     /*5. 
     Реализовать основные 4 арифметические операции в виде функций с двумя параметрами. 
     Обязательно использовать оператор return.
@@ -95,11 +96,11 @@
     function addition(a, b) {
         return a + b
     }
-    
+
     function subtraction(a, b) {
         return a - b
     }
-    
+
     function multiplication(a, b) {
         return a * b
     }
@@ -115,7 +116,7 @@
     (использовать функции из пункта 5) и вернуть полученное значение (использовать switch).
     * */
 
-    function mathOperation(arg1, arg2, operation){
+    function mathOperation(arg1, arg2, operation) {
         switch (operation) {
             case '+':
                 return addition(arg1, arg2);
@@ -147,18 +148,19 @@
     Формат: function power(val, pow), где val – заданное число, pow – степень.
     * */
     let callingNumber = 1
+
     function callCounting() {
         return callingNumber++
     }
 
-    function power(val, pow){
+    function power(val, pow) {
         if (pow === 0) return 1
         if (callCounting() >= pow) return val
 
-        return power(val,pow) * val
+        return power(val, pow) * val
     }
 
-    console.log(power(2,5))
+    console.log(power(2, 5))
 </script>
 </body>
 </html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script>
+    // 1. С помощью цикла while вывести все простые числа в промежутке от 0 до 100.
+    // let i = 1;
+    // whileLoop:
+    // while (i < 100){
+    //     i++
+    //     for (let b = 2; b < i; b++){
+    //         if (i % b === 0){
+    //             continue whileLoop;
+    //             }
+    //     }
+    //     console.log(i)
+    // }
+
+    /*2. С этого урока начинаем работать с функционалом интернет-магазина.
+         Предположим, есть сущность корзины. Нужно реализовать функционал подсчета стоимости корзины в
+         зависимости от находящихся в ней товаров. Товары в корзине хранятся в массиве.
+         Задачи:
+            a) Организовать такой массив для хранения товаров в корзине;
+            b) Организовать функцию countBasketPrice, которая будет считать стоимость корзины.
+         Корзина будет выглядеть как массив массивов [['Название', цена, количество]]
+    * */
+
+    // let shoppingBasket = [['Товар_1', 1000, 3], ['Товар_2', 4000, 1]]
+    //
+    // function countBasketPrice(shoppingBasket) {
+    //     let result = 0;
+    //     for (let product of shoppingBasket) {
+    //         result += (product[1] * product[2])
+    //     }
+    //     return result;
+    // }
+    // console.log(countBasketPrice(shoppingBasket))
+
+    /*3.*Вывести с помощью цикла for числа от 0 до 9, не используя тело цикла. Выглядеть это должно так:
+        for(…){// здесь пусто}
+    */
+
+    // for (let i = 0; i < 10; console.log(i++)){}
+
+    /*4. *Нарисовать пирамиду с помощью console.log, как показано на рисунке,
+    только у вашей пирамиды должно быть 20 рядов, а не 5:
+    x
+    xx
+    xxx
+    xxxx
+    xxxxx
+    * */
+
+    // let xString = 1
+    // for (let i = 1; i <= 20; i++) {
+    //     console.log('x'.repeat(xString))
+    //     xString++;
+    // }
+
+    // Попытка сделать пирамиду не скрая а от середины но получается кривенькая
+
+    // let xString = 1
+    // let a = 9
+    // for (let i = 1; i <= 20; i++) {
+    //     console.log(' '.repeat(a)+'x'.repeat(xString))
+    //     xString++;
+    //     if (i % 2 === 0){
+    //         a--;
+    //     }
+    // }
+
+</script>
+</body>
+</html>

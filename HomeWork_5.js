@@ -81,13 +81,16 @@ let shoppingBasket = {
             result += argument.countProd
         }
         return result
-    }
-}
+    },
 
-const basket = document.getElementById('basket')
-const a = document.createElement("div")
+    delAll() {
+    this.product = []
+    this.render()
+    },
 
-function render() {
+    render() {
+    const basket = document.getElementById('basket')
+    const a = document.createElement("div")
     if (shoppingBasket.product.length > 0) {
         basket.textContent = `В корзине ${shoppingBasket.countItems()} 
         товаров на цену ${shoppingBasket.countBasketPrice()}`
@@ -96,15 +99,11 @@ function render() {
         basket.textContent = 'Корзина пуста!'
         basket.appendChild(a)
     }
+    },
+
 }
 
-
-function delAll() {
-    shoppingBasket.product = []
-    render()
-}
-
-render()
+shoppingBasket.render();
 
 /*
 3*. Сделать так, чтобы товары в каталоге выводились при помощи JS:
@@ -112,24 +111,35 @@ render()
 3.2. При загрузке страницы на базе данного массива генерировать вывод из него.
 HTML-код должен содержать только div id=”catalog” без вложенного кода. Весь вид каталога генерируется JS.
 */
-let products = [
-    {
+let products = {
+    gods:[
+        {
         name: 'Товар_1',
         cost: 1000,
         countProd: 3
-    },
-    {
+        },
+        {
         name: 'Товар_2',
         cost: 4000,
         countProd: 1
-    }
-]
-let catalogObj = document.getElementById('catalog');
-function catalogRender() {
+        }
+    ],
+
+    catalogRender() {
     let result = ''
-    for (let i of products) {
+    for (let i of this.gods) {
         result = result + `<div>Товар ${i.name}<br> Цена ${i.cost}<br><br></div>`
     }
     return result
+    },
+
+    init(){
+        let catalogObj = document.getElementById('catalog');
+        catalogObj.innerHTML = this.catalogRender()
+    },
 }
-catalogObj.innerHTML = catalogRender()
+
+products.init()
+
+
+

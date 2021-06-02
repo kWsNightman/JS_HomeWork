@@ -3,7 +3,7 @@ const settings = {
     rowsCount: 21,
     colsCount: 21,
     speed: 2,
-    winFoodCount: 50,
+    winFoodCount: 10,
 };
 
 const config = {
@@ -85,7 +85,7 @@ const map = {
         }
     },
 
-    render(snakePointsArray, foodPoint) {
+    render(snakePointsArray, foodPoint, obstaclesPoint) {
         for (const cell of this.usedCells) {
             cell.className = 'cell';
         }
@@ -101,6 +101,14 @@ const map = {
         const foodCell = this.cells[`x${foodPoint.x}_y${foodPoint.y}`];
         foodCell.classList.add('food');
         this.usedCells.push(foodCell);
+
+        // Отрисовка препятствия на карте
+        for (const obstaclesCellElement of obstaclesPoint) {
+            let obstaclesCell = this.cells[`x${obstaclesCellElement.x}_y${obstaclesCellElement.y}`];
+            obstaclesCell.classList.add('obstacles');
+            this.usedCells.push(obstaclesCell);
+        }
+
     },
 };
 
@@ -126,12 +134,12 @@ const snake = {
     setDirection(direction) {
         this.direction = direction;
     },
-
-    isOnPoint(point) {
-        return this.getBody().some((snakePoint) => {
-            return snakePoint.x === point.x && snakePoint.y === point.y;
-        });
-    },
+    // И этот метод больше не вызывается ни где
+    // isOnPoint(point) {
+    //     return this.getBody().some((snakePoint) => {
+    //         return snakePoint.x === point.x && snakePoint.y === point.y;
+    //     });
+    // },
 
     makeStep() {
         this.lastStepDirection = this.direction;
@@ -149,16 +157,21 @@ const snake = {
 
     getNextStepHeadPoint() {
         const firstPoint = this.getBody()[0];
-
-        switch(this.direction) {
+        // Наверное это не совсем верно так запрашивать каждый раз статические значения но пока что не придумал как это
+        // сделать по другому
+        let col = settings.colsCount;
+        let row = settings.rowsCount;
+        // 3. Убрать границы поля. Т.е. при пересечении границы поля змейка появляется с противоположной стороны.
+        // По сути мы тут проверяем границы и если за них заходим задаем нужные значения
+        switch (this.direction) {
             case 'up':
-                return {x: firstPoint.x, y: firstPoint.y - 1};
+                return {x: firstPoint.x, y: (firstPoint.y - 1) === -1 ? row - 1 : firstPoint.y - 1};
             case 'right':
-                return {x: firstPoint.x + 1, y: firstPoint.y};
+                return {x: firstPoint.x + 1 === col ? 0 : firstPoint.x + 1, y: firstPoint.y};
             case 'down':
-                return {x: firstPoint.x, y: firstPoint.y + 1};
+                return {x: firstPoint.x, y: firstPoint.y + 1 === row ? 0 : firstPoint.y + 1};
             case 'left':
-                return {x: firstPoint.x - 1, y: firstPoint.y};
+                return {x: firstPoint.x - 1 === -1 ? col - 1 : firstPoint.x - 1, y: firstPoint.y};
         }
     },
 };
@@ -183,6 +196,31 @@ const food = {
         return this.x === point.x && this.y === point.y;
     },
 };
+
+// 2. Генерировать временные препятствия на поле.
+// Тут обьект препятствие
+const obstacles = {
+    x: null,
+    y: null,
+
+    getCoordinates() {
+        return {
+            x: this.x,
+            y: this.y,
+        };
+    },
+
+    setCoordinates(point) {
+        this.x = point.x;
+        this.y = point.y;
+    },
+
+    isOnPoint(point) {
+        return this.x === point.x && this.y === point.y;
+    },
+};
+// Создал список обьектов препятствий
+let obstaclesList = []
 
 const status = {
     condition: null,
@@ -213,8 +251,10 @@ const game = {
     map,
     snake,
     food,
+    obstacles,
     status,
     tickInterval: null,
+    obstaclesList,
 
     init(userSettings = {}) {
         this.config.init(userSettings);
@@ -290,14 +330,20 @@ const game = {
     },
 
     reset() {
+        // В ресете обнуляем список препятствий
+        this.obstaclesList = []
         this.stop();
         this.snake.init(this.getStartSnakeBody(), 'up');
         this.food.setCoordinates(this.getRandomFreeCoordinates());
+        // Переопределяем координаты
+        this.obstacles.setCoordinates(this.getRandomFreeCoordinates());
+        this.obstaclesList.push({...this.obstacles})
         this.render();
+        this.renderScore();
     },
 
     render() {
-        this.map.render(this.snake.getBody(), this.food.getCoordinates());
+        this.map.render(this.snake.getBody(), this.food.getCoordinates(), this.obstaclesList);
     },
 
     getStartSnakeBody() {
@@ -310,7 +356,7 @@ const game = {
     },
 
     getRandomFreeCoordinates() {
-        const exclude = [this.food.getCoordinates(), ...this.snake.getBody()];
+        const exclude = [this.food.getCoordinates(), ...this.snake.getBody(), this.obstacles];
 
         while (true) {
             const rndPoint = {
@@ -335,30 +381,48 @@ const game = {
     },
 
     tickHandler() {
-        if (!this.canSnakeMakeStep()) this.finish();
+        // После 3 задания эту проверку можно удалить как и сам метод
+        // if (!this.canSnakeMakeStep()) this.finish();
         if (this.food.isOnPoint(this.snake.getNextStepHeadPoint())) {
             this.snake.growUp();
+            // Обновление очков после еды
+            this.renderScore();
+            // Переопределение новых координат препятствия
+            this.obstaclesGen();
             this.food.setCoordinates(this.getRandomFreeCoordinates());
-
             if (this.isGameWon()) return this.finish();
+        }
+        // Обработка столкнавения с препятствием и завершение игры
+        for (const argument of this.obstaclesList) {
+            if (argument.isOnPoint(this.snake.getNextStepHeadPoint())) {
+                this.finish()
+            }
         }
 
         this.snake.makeStep();
         this.render();
     },
+    // Генерируем препятствия в зависимости от очков
+    obstaclesGen() {
+        this.obstaclesList = []
+        for (let i = 0; i < Math.trunc(this.snake.getBody().length / 2); i++) {
+            this.obstacles.setCoordinates(this.getRandomFreeCoordinates())
+            this.obstaclesList.push({...this.obstacles})
+        }
+    },
 
     isGameWon() {
         return this.snake.getBody().length > this.config.getWinFoodCount();
     },
-
-    canSnakeMakeStep() {
-        const nextHeadPoint = this.snake.getNextStepHeadPoint();
-        return !this.snake.isOnPoint(nextHeadPoint) &&
-            nextHeadPoint.x < this.config.getColsCount() &&
-            nextHeadPoint.y < this.config.getRowsCount() &&
-            nextHeadPoint.x > 0 &&
-            nextHeadPoint.y> 0;
-    },
+    //  Этот метод можно удалить так как он после 3 задания не нужен
+    // canSnakeMakeStep() {
+    //     const nextHeadPoint = this.snake.getNextStepHeadPoint();
+    //     return !this.snake.isOnPoint(nextHeadPoint) &&
+    //         nextHeadPoint.x < this.config.getColsCount() &&
+    //         nextHeadPoint.y < this.config.getRowsCount() &&
+    //         nextHeadPoint.x > 0 &&
+    //         nextHeadPoint.y> 0;
+    // },
 
     stop() {
         this.status.setStopped();
@@ -381,6 +445,14 @@ const game = {
             ? playButton.classList.add('disabled')
             : playButton.classList.remove('disabled');
     },
-};
 
+    // 1. Выводить счёт в режиме реального времени.
+    // Отрисовка счетчика
+    renderScore() {
+        let scoreNode = document.querySelector('.score');
+        scoreNode.textContent = `Счет: ${this.snake.getBody().length - 1}`;
+    },
+
+};
+// Пытался все сделать аккуратно но чтото это все не так красиво вяглядит как хотелось бы
 game.init();
